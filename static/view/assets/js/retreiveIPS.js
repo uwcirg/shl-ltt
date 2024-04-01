@@ -8,17 +8,26 @@ if (shl) {
         retrieve()
     } catch (e) {
         console.error("Unable to load Report: " + e);
-        $("#error").show();
-        $("#status").hide();
-        $("#ips-loader").hide();
+        showError();
     }
 }
 
-async function retrieve(){
+function showError() {
+    $("#error").show();
+    $("#status").hide();
+    $("#ips-loader").hide();
+}
+
+async function retrieve() {
     const recipient = "LTT Choices Report Viewer";
 
     let passcode;
-    const needPasscode = shlClient.flag({ shl }).includes('P');
+    try {
+        const needPasscode = shlClient.flag({ shl }).includes('P');
+    } catch (e) {
+        console.error(e);
+        throw Error("Content parsing error");
+    }
     if (needPasscode) {
         passcode = prompt("Enter passcode to view this Choices Report");
     }
@@ -66,8 +75,7 @@ async function retrieve(){
                 errorMsg = retrieveResult.error;
             }
         }
-        $('#error').show();
-        $("#ips-loader").hide();
+        showError();
         return;
     }
     const decoded = await Promise.all(retrieveResult.shcs.map(verify));
