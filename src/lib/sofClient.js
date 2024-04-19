@@ -1,8 +1,9 @@
 import FHIR from 'fhirclient';
-import { SOF_PATIENT_RESOURCES, SOF_RESOURCES, LOGOUT_URL } from './config.ts';
-
-const patientResourceScope = SOF_PATIENT_RESOURCES.map(resourceType => `patient/${resourceType}.read`);
-const resourceScope = patientResourceScope.join(" ");
+import {
+    SOF_PATIENT_RESOURCES,
+    FHIR_R4_EXTERNAL_ID_SYSTEM,
+    LOGOUT_URL
+} from './config.ts';
 
 export class SOFClient {
     client;
@@ -50,11 +51,9 @@ export class SOFClient {
     getKeyCloakUserID() {
         let stateToken = this.client.getState("tokenResponse.access_token");
         if (stateToken) {
-            // let state = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
             let part = stateToken.split('.')[1];
             let decoded = window.atob(part);
             let state = JSON.parse(decoded);
-            // let state = JSON.parse(window.btoa(stateToken.split('.')[1]));
             let keycloakUserId = state?.sub;
             this.patientId = keycloakUserId;
         }
@@ -105,7 +104,7 @@ export class SOFClient {
             resourceType == 'Patient' 
             ? 'Patient?identifier=' 
             : `${resourceType}?_count=1000&_sort=-date&subject.identifier=`
-            ) + "https://keycloak.ltt.cirg.uw.edu|" + this.getPatientID();
+            ) + `${FHIR_R4_EXTERNAL_ID_SYSTEM}|${this.getPatientID()}`;
         return this.client.request({url: endpoint, headers: {'cache-control': 'no-cache'}}, { flat: true }).then((result) => {
             let resourcesToPass = [];
             if (Array.isArray(result)) {
@@ -129,11 +128,6 @@ export class SOFClient {
         if (!pid) {
             throw Error('No valid patient session found.');
         }
-
-        // Check that we can write to the server
-        // if (!(SOF_PATIENT_RESOURCES.find('Binary') && SOF_PATIENT_RESOURCES.find('DocumentReference'))) {
-        //     throw Error('Unable to access resources required to save SHL.');
-        // }
 
         /* This SHL metadata DocumentReference:
         * links the SHL to the session
@@ -171,7 +165,7 @@ export class SOFClient {
                 ]
             },
             "subject": {
-                "reference": `Patient?identifier=https%3A%2F%2Fkeycloak.ltt.cirg.uw.edu%7C${shl.userId}`
+                "reference": `Patient?identifier=`+encodeURI(`${FHIR_R4_EXTERNAL_ID_SYSTEM}|${shl.userId}`)
             },
             "date": shlDocRefInputs.date,
             "description": "SMART Health Link Metadata",
