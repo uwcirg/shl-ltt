@@ -1,22 +1,46 @@
-# create-svelte
+# SHL Sharing for Let's Talk Tech
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte).
+## Setup
 
-## Creating a project
-
-If you're seeing this, you've probably already done this step. Congrats!
+Install the project libraries
 
 ```bash
-# create a new project in the current directory
-npm create svelte@latest
+npm install
+```
+(or `pnpm install` or `yarn`)
 
-# create a new project in my-app
-npm create svelte@latest my-app
+### Environment
+
+Copy the `.env` file default:
+
+```bash
+cp default.env .env
 ```
 
-## Developing
+Modify any `.env` files as necessary. Non-comment variables are required, commented lines are optional.
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+## Docker
+
+Starting the docker container
+
+```bash
+docker-compose build && docker-compose up --detach
+```
+
+### Docker development
+
+Update the `.env` file to use the development compose file
+
+```bash
+COMPOSE_FILE=docker-compose.yaml:docker-compose.dev.yaml
+```
+(On windows, separate compose files with `;` instead of `:`.)
+
+The docker image will reflect any local changes to the `/lib` and `/static` folders.
+
+## Local Development
+
+Start a local development server with
 
 ```bash
 npm run dev
@@ -25,28 +49,32 @@ npm run dev
 npm run dev -- --open
 ```
 
+### Debugging
+To debug in VS Code, create a launch.json file with the following configuration:
+```bash
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "Launch Chrome against localhost",
+            "url": "http://localhost:3000",
+            "webRoot": "${workspaceFolder}"
+        }
+    ]
+}
+```
+With the development server running, start the debugger.
+
 ## Building
 
-To create a production version of your app:
+To build a production version:
 
 ```bash
 npm run build
 ```
 
-You can preview the production build with `npm run preview`.
+You can also preview the production build with `npm run preview`.
 
 > To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
-
-## Docker
-
-Environment
-
-```bash
-cp default.env .env
-```
-
-Starting the docker container
-
-```bash
-docker-compose build && docker-compose up --detach
-```
