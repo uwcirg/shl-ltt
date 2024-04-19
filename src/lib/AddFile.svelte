@@ -22,8 +22,7 @@
     let sofClient: SOFClient = getContext('sofClient');
 
     const shlReadyDispatch = createEventDispatcher<{ 'shl-ready': boolean }>();
-    const shlDispatch = createEventDispatcher<{ 'shl-submitted': SHLSubmitEvent }>();
-    let submitting = false;
+
     let fetchError = "";
     let createSHL = false;
     let updatedShl = false;
