@@ -13,7 +13,6 @@
     // Listen for messages from OP iframe
     window.addEventListener('message', processStatus);
     // Check session on load
-    // checkSessionStatus();
     let iframe = document.getElementById('opIframe');
     iframe?.addEventListener('load', () => {
       // Poll the iframe on load
