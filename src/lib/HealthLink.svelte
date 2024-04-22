@@ -1,6 +1,6 @@
 <script lang="ts">
   import QRCode from 'qrcode';
-  import { getContext, setContext } from 'svelte';
+  import { getContext } from 'svelte';
   import {
     Accordion,
     AccordionItem,

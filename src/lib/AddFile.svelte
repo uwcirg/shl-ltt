@@ -5,7 +5,7 @@
     import {
       Alert
     } from 'sveltestrap';
-    import FetchSoFLTT from './FetchSoFLTT.svelte';
+    import FetchSoF from './FetchSoF.svelte';
     import type { Writable } from 'svelte/store';
     import type { SHLAdminParams, SHLClient } from '$lib/managementClient';
     import type { SOFClient } from './sofClient';
@@ -22,8 +22,7 @@
     let sofClient: SOFClient = getContext('sofClient');
 
     const shlReadyDispatch = createEventDispatcher<{ 'shl-ready': boolean }>();
-    const shlDispatch = createEventDispatcher<{ 'shl-submitted': SHLSubmitEvent }>();
-    let submitting = false;
+
     let fetchError = "";
     let createSHL = false;
     let updatedShl = false;
@@ -306,7 +305,7 @@
 />
 
 <!-- Retrieves SOF resources on mount -->
-<FetchSoFLTT
+<FetchSoF
   on:updateResources={ async ({ detail }) => { handleNewResources(detail) } }
 />
 
