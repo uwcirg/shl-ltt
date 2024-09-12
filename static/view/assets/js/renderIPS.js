@@ -18,6 +18,10 @@ $(document).ready(function () {
   $('#content').show();
   $('#FhirDropdown').on('click', () => updateDisplayMode('Entries'));
   $('#NarrativeDropdown').on('click', () => updateDisplayMode('Text'));
+
+  window.navigation.addEventListener("navigate", (event) => {
+    location.reload();
+  });
 });
 
 function loadSample() {
