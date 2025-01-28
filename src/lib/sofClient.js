@@ -1,5 +1,6 @@
 import FHIR from 'fhirclient';
 import { SOF_PATIENT_RESOURCES, SOF_RESOURCES, LOGOUT_URL, POST_LOGOUT_REDIRECT_URI } from './config.ts';
+import { Logger, log } from './logger';
 
 const patientResourceScope = SOF_PATIENT_RESOURCES.map(resourceType => `patient/${resourceType}.read`);
 const resourceScope = patientResourceScope.join(" ");
@@ -18,6 +19,8 @@ export class SOFClient {
             // Initialize FHIR client
             this.client = await FHIR.oauth2.init(this.configuration);
             this.patientId = this.getKeyCloakUserID();
+            Logger.Instance.setUserId(this.patientId);
+            log({ message: `FHIR client initialized for user ${this.patientId}` });
         } catch (error) {
             console.error('Error initializing FHIR client:', error);
         }
@@ -42,7 +45,10 @@ export class SOFClient {
         this.reset();
         if (logout_url !== "") {
             window.location.href = logout_url;
+            log({ message: `User ${this.patientId} logged out` });
+            Logger.Instance.setUserId("");
         } else {
+            log({ message: `Failed to log out user ${this.patientId}: empty logout URL`, level: "ERROR" });
             throw Error("Empty logout URL");
         }
     }

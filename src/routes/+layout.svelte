@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { log } from '$lib/logger';
   import { setContext, onMount } from 'svelte';
   import { writable } from 'svelte/store';
   import {

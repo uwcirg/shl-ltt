@@ -2,6 +2,10 @@
 import { dev } from '$app/environment';
 import { toMilliseconds } from '$lib/util';
 
+export const LOG_URL = import.meta.env.VITE_LOG_URL;
+export const DEPLOYMENT_TYPE = import.meta.env.VITE_DEPLOYMENT_TYPE;
+export const SYSTEM_URL = import.meta.env.VITE_SYSTEM_URL;
+
 export const API_BASE = import.meta.env.VITE_API_BASE;
 
 export const INTERMEDIATE_FHIR_SERVER_BASE = import.meta.env.VITE_INTERMEDIATE_FHIR_SERVER_BASE;
