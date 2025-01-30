@@ -56,23 +56,6 @@ export class SHLClient {
     };
   }
 
-  async getUserShl(pid: string): Promise<SHLAdminParams>{
-    try {
-      const req = await fetch(`${API_BASE}/user/${pid}`, {
-        method: 'GET'
-      }).catch((reason) => {
-        console.error(reason);
-      });
-      let res;
-      if (req && req.status < 400) {
-        res = await req.json();
-      }
-      return res;
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
   async deleteShl(shl: SHLAdminParams): Promise<boolean> {
     const req = await fetch(`${API_BASE}/shl/${shl.id}`, {
       method: 'DELETE',
