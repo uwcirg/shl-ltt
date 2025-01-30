@@ -5,7 +5,6 @@ import { toMilliseconds } from '$lib/util';
 export const VERSION_STRING = import.meta.env.VITE_VERSION_STRING;
 
 export const LOG_URL = import.meta.env.VITE_LOG_URL;
-export const DEPLOYMENT_TYPE = import.meta.env.VITE_DEPLOYMENT_TYPE;
 export const SYSTEM_URL = import.meta.env.VITE_SYSTEM_URL;
 
 export const API_BASE = import.meta.env.VITE_API_BASE;

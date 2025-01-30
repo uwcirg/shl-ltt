@@ -6,7 +6,6 @@ interface ImportMetaEnv {
     readonly VITE_CERNER_CLIENT_ID: string
     readonly VITE_API_BASE: string
     readonly VITE_LOG_URL: string
-    readonly VITE_DEPLOYMENT_TYPE: "dev" | "test" | "demo" | "stage" | "prod"
     readonly VITE_SYSTEM_URL: string
     readonly VITE_VIEWER_BASE: string
     readonly VITE_INTERMEDIATE_FHIR_SERVER_BASE: string
