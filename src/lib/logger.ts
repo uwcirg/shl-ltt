@@ -1,24 +1,36 @@
-import { LOG_URL, DEPLOYMENT_TYPE, SYSTEM_URL } from "./config";
-import { dev } from "$app/environment";
+import { LOG_URL, VERSION_STRING, SYSTEM_URL } from "./config";
 
-interface LogMessage {
-  "message": string;
-  "tags"?: string[];
-  "level"?: "INFO" | "ERROR" | "WARN" | "DEBUG";
-  "subject"?: string;
-  "user"?: string;
-  "name"?: string;
-  "deployment"?: "dev" | "test" | "demo" | "stage" | "prod";
-  "system-type"?: string;
-  "system-url"?: string;
-  "session-id"?: string;
+type Action = 'create' | 'read' | 'update' | 'delete' | 'execute' | 'login' | 'logout';
+type Severity = 'critical' | 'error' | 'warning' | 'info' | 'debug';
+
+export interface LogMessage {
+  version: string; // default: 2
+  severity: Severity; // default: info
+  action: Action;
+  occurred?: string; // datetime of event
+  subject?: string; // subject id
+  agent?: {
+    ip_address?: string; // Handled by server
+    user_agent?: string; // Handled by server
+    type?: string; // Server default: user
+    who?: string; // user id
+  };
+  source?: {
+    observer?: string; // system url
+    type?: string; // system name
+    version?: string; // system version
+  };
+  entity?: {
+    detail?: {[key: string] : string}; // additional info e.g. {action: "Copied SHL url to clipboard"}
+    query?: string; // query info
+  };
+  outcome?: string; // failure or warning details
 }
-export function log(content: LogMessage|string, dest?: string) {
-  if (typeof content === "string") {
-    content = {
-      message: content
-    };
-  }
+
+export interface LogMessageSimple extends Partial<LogMessage> {
+  action: Action;
+}
+export function log(content: LogMessageSimple, dest?: string) {
   Logger.Instance.log(content, dest);
 }
 
@@ -46,7 +58,17 @@ export class Logger {
     this.session_id = session_id;
   }
 
-  public log(content: LogMessage, dest?: string): void {
+  public applyLogFallbacks(logMessage: LogMessageSimple, defaults: Partial<LogMessage>): LogMessageSimple {
+    if (logMessage.entity) {
+      logMessage.entity.detail = {...(defaults.entity?.detail ?? {}), ...(logMessage.entity?.detail ?? {})}; 
+    }
+    logMessage.entity = {...defaults.entity, ...logMessage.entity};
+    logMessage.source = {...defaults.source, ...logMessage.source};
+    logMessage.agent = {...defaults.agent, ...logMessage.agent};
+    return {...defaults, ...logMessage};
+  }
+
+  public log(content: LogMessageSimple, dest?: string): void {
     let logURL = dest ?? this.dest;
     if (!logURL) {
       console.log(JSON.stringify(content));
@@ -58,20 +80,29 @@ export class Logger {
       return;
     }
   
-    let defaults = {
-      "level": "INFO",
-      "user": this.user_id,
-      "name": "shl-creator",
-      "deployment": DEPLOYMENT_TYPE || dev ? "dev" : "prod",
-      "system-type": "web",
-      "system-url": SYSTEM_URL || window.location.href,
-      "session-id": this.session_id,
-    };
+    let defaults: Partial<LogMessage> = {
+      version: "2",
+      severity: "info",
+      occurred: new Date().toISOString(),
+      subject: this.user_id,
+      agent: {
+        who: this.user_id,
+      },
+      source: {
+        observer: SYSTEM_URL || window.location.origin,
+        type: 'shl-creator',
+        version: VERSION_STRING,
+      },
+      entity: {
+        detail: {
+          url: window.location.href, // current url
+          session_id: this.session_id
+        }, // additional info
+      },
+      outcome: "", // failure or warning details
+    }
   
-    let logMessage = {
-      ...defaults,
-      ...content,
-    };
+    let logMessage: LogMessageSimple = this.applyLogFallbacks(content, defaults);
   
     fetch(logURL, {
       method: "POST",

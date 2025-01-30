@@ -19,6 +19,7 @@ interface ImportMetaEnv {
     readonly VITE_OIDC_CHECK_SESSION_IFRAME: string
     readonly VITE_INACTIVITY_TIMEOUT: string
     readonly VITE_BACKUP_INACTIVITY_TIMEOUT: string
+    readonly VITE_VERSION_STRING: string
     readonly DEV_SERVER_PORT: number
 }
   
