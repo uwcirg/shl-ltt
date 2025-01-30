@@ -90,7 +90,7 @@ export class Logger {
       },
       source: {
         observer: SYSTEM_URL || window.location.origin,
-        type: 'shl-creator',
+        type: 'shl-ltt',
         version: VERSION_STRING,
       },
       entity: {
