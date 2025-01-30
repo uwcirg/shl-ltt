@@ -3,9 +3,11 @@
       Button,
       Icon
     } from 'sveltestrap';
+    import { log } from '$lib/logger';
 
     let copyNotice = '';
   
+    export let id: string;
     export let href: string;
   
     async function copyShl() {
@@ -17,6 +19,16 @@
         setTimeout(() => {
             copyNotice = copyNoticePrev;
         }, 8000);
+        log({
+            action: 'read',
+            entity: {
+                detail: {
+                    action: `Copied SHL to clipboard`,
+                    url: href,
+                    Button: id
+                }
+            }
+        })
     }
 </script>
 {#if copyNotice}

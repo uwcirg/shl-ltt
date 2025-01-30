@@ -28,14 +28,23 @@
   import { fade } from 'svelte/transition';
   import type { Writable } from 'svelte/store';
   import type { SHLAdminParams, SHLClient } from './managementClient';
+  import { log } from '$lib/logger';
 
   let open = false;
-  const toggle = () => (open = !open);
+  function toggle() {
+    open = !open
+    log({
+      action: "read",
+      entity: {
+        detail: {
+          action: (open ? "Open" : "Close") + " SHL reset dialogue"
+        }
+      }
+    })
+  };
 
   let shlStore: Writable<SHLAdminParams> = getContext('shlStore');
   let shlClient: SHLClient = getContext('shlClient');
-
-  let copyNotice = '';
 
   let href: Promise<string>;
   let qrCode: Promise<string>;
@@ -77,24 +86,35 @@
       encryptionKey: shl.encryptionKey,
       files: []
     };
-    return await shlClient.toLink(shlMin);
-  }
-
-  async function copyShl() {
-    let copyNoticePrev = copyNotice;
-    copyNotice = '...';
-    let text = await getUrl($shlStore);
-    navigator.clipboard.writeText(text);
-    copyNotice = 'Copied!';
-    setTimeout(() => {
-      copyNotice = copyNoticePrev;
-    }, 1000);
+    let url = await shlClient.toLink(shlMin);
+    log({
+      action: "read",
+      entity: {
+        detail: {
+          action: `Load SHL '${shl.id}'`,
+          shl_session: shl.sessionId ?? "",
+          shl: shl.id,
+          url: url
+        }
+      }
+    })
+    return url;
   }
 
   async function deactivateShl() {
     toggle();
     await shlClient.deleteShl($shlStore);
     // TODO: Implement post-deactivation flow
+    log({
+      action: "update",
+      entity: {
+        detail: {
+          action: `User deactivated SHL '${$shlStore.id}'`,
+          shl_session: $shlStore.sessionId ?? "",
+          shl: $shlStore.id
+        }
+      }
+    });
     location.reload();
   }
 
@@ -103,8 +123,26 @@
   function updateInstructions(event) {
     if (instructions && event.target.id.includes(instructions)) {
       instructions = "";
+      log({
+        action: "update",
+        entity: {
+          detail: {
+            action: `Closed sharing instructions`,
+            id: event.target.id
+          }
+        }
+      });
     } else {
       instructions = event.target.id.split('-')[0];
+      log({
+        action: "update",
+        entity: {
+          detail: {
+            action: `Opened ${instructions} sharing instructions`,
+            id: event.target.id
+          }
+        }
+      });
     }
   }
 </script>
@@ -178,7 +216,7 @@
           {#await href then href}
             <Row class="justify-content-center">
               <Col xs="auto" class="mb-2">
-                <CopyButton href={href} />
+                <CopyButton id="email-copy" href={href} />
               </Col>
             </Row>
           {/await}
@@ -204,7 +242,7 @@
           {#await href then href}
             <Row class="justify-content-center">
               <Col xs="auto" class="mb-2">
-                <CopyButton href={href} />
+                <CopyButton id="text-copy" href={href} />
               </Col>
             </Row>
           {/await}
@@ -276,7 +314,7 @@
     </Row>
     <Row class="justify-content-center">
       <Col xs="auto" class="mb-2">
-        <CopyButton href={href} />
+        <CopyButton id="main-copy" href={href} />
       </Col>
     </Row>
     {/await}
