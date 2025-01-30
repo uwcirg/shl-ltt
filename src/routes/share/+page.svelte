@@ -11,18 +11,27 @@
   }
 
   onMount(() => {
-    log("Share page loaded" );
-  })
+    log({
+      action: 'read',
+      entity: {
+        detail: {
+          action: `Load share page`
+        }
+      }
+    });
+  });
 </script>
 
 <svelte:head>
-  <title>Let's Talk Tech - Share</title> 
+  <title>Let's Talk Tech - Share</title>
 </svelte:head>
 
 <AddFileLTT
-  on:shl-ready={ ({ detail }) => { updateReady(detail) } }
+  on:shl-ready={({ detail }) => {
+    updateReady(detail);
+  }}
 />
 
 {#if shlReady}
-  <HealthLinkLTT/>
+  <HealthLinkLTT />
 {/if}
