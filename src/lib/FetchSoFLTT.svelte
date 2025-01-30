@@ -4,6 +4,7 @@
   import { createEventDispatcher, onMount } from 'svelte';
   import { Alert } from 'sveltestrap';
   import type { SOFClient } from './sofClient';
+  import { log } from '$lib/logger';
 
   const resourceDispatch = createEventDispatcher<{ updateResources: ResourceRetrieveEvent }>();
 
@@ -33,6 +34,16 @@
       processing = false;
       return resourceDispatch('updateResources', result);
     } catch (e) {
+      log({
+        action: "read",
+        severity: "error",
+        entity: {
+          detail: {
+            action: `Error while fetching Resources`,
+            error: `${JSON.stringify(e)}`
+          }
+        }
+      });
       processing = false;
       console.error('Error while fetching data: ', e);
       fetchError = "Unable to find your Report.";
@@ -43,6 +54,6 @@
 {#if fetchError}
 <Alert color="danger">
   <h4 class="alert-heading text-capitalize">{fetchError}</h4>
-  You can try again later, click "Back" to choose another option, or reach out for help below.
+  If you have completed your Choices Report, reach out for help below. Otherwise, click "Back" to finish your Report.
 </Alert>
 {/if}
