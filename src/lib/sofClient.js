@@ -20,8 +20,25 @@ export class SOFClient {
             this.client = await FHIR.oauth2.init(this.configuration);
             this.patientId = this.getKeyCloakUserID();
             Logger.Instance.setUserId(this.patientId);
-            log({ message: `FHIR client initialized for user ${this.patientId}` });
+            log({
+                action: "login",
+                entity: {
+                    detail: {
+                        action: `Initialized FHIR client for user '${this.patientId}'`
+                    }
+                }
+            });
         } catch (error) {
+            log({
+                severity: "error",
+                action: "login",
+                entity: {
+                    detail: {
+                        action: `Initialize FHIR client for user '${this.patientId}'`
+                    }
+                },
+                outcome: `${JSON.stringify(error)}`
+            });
             console.error('Error initializing FHIR client:', error);
         }
     }
@@ -45,10 +62,26 @@ export class SOFClient {
         this.reset();
         if (logout_url !== "") {
             window.location.href = logout_url;
-            log({ message: `User ${this.patientId} logged out` });
+            log({
+                action: "logout",
+                entity: {
+                    detail: {
+                        action: `Logged out user '${this.patientId}'`
+                    }
+                }
+            });
             Logger.Instance.setUserId("");
         } else {
-            log({ message: `Failed to log out user ${this.patientId}: empty logout URL`, level: "ERROR" });
+            log({
+                severity: "error",
+                action: "logout",
+                entity: {
+                    detail: {
+                        action: `Logout user '${this.patientId}'`
+                    }
+                },
+                outcome: `${JSON.stringify(error)}`
+            });
             throw Error("Empty logout URL");
         }
     }

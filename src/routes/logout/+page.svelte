@@ -13,7 +13,7 @@
             sofClient.logout();
         } catch (e) {
             console.error(e);
-            errorMsg = "Unable to log out. Please try again later.";
+            errorMsg = "Unable to log out.";
             goto('/share');
         }
     });
