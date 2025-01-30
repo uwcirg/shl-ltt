@@ -16,6 +16,7 @@
       SHLRetrieveEvent,
       SHLSubmitEvent} from './types';
     import RetrieveShl from './RetrieveSHL.svelte';
+    import { log } from '$lib/logger';
 
     let shlStore: Writable<SHLAdminParams> = getContext('shlStore');
     let shlClient: SHLClient = getContext('shlClient');
@@ -98,6 +99,18 @@
         let result = await sofClient.postShl(shl, mostRecentDocRef, reportLabel);
         $shlStore = shl;
         console.log($shlStore);
+        log({
+          action: "create",
+          entity: {
+            detail: {
+              action: `Created SHL '${$shlStore.id}'`,
+              shl_session: $shlStore.sessionId ?? "",
+              shl: $shlStore.id,
+              patient: patient.id,
+              docref: mostRecentDocRef.id
+            }
+          }
+        });
         shlReadyDispatch('shl-ready', true);
       } else {
         fetchError = "No Report found";
@@ -143,16 +156,50 @@
           let reportLabel = `My Choices Report (${reportDate})`;
           let result = await sofClient.postShl($shlStore, mostRecentDocRef, reportLabel);
           $shlStore.label = result.label;
+          log({
+            action: "create",
+            entity: {
+              detail: {
+                action: `Created new SHL for updated report '${$shlStore.id}'`,
+                shl_session: $shlStore.sessionId ?? "",
+                shl: $shlStore.id,
+                patient: patient.id,
+                docref: mostRecentDocRef.id
+              }
+            }
+          });
           updatedShl = true;
         }
         // The current SHL is most recent, so use it
         shlReadyDispatch('shl-ready', true);
       } else if (mostRecentDocRef) {
         console.log(`Couldn't find FHIR record for SHL ${$shlStore.id} and session ${$shlStore.sessionId}, creating new SHL`);
+        log({
+          action: "read",
+          entity: {
+            detail: {
+              action: `Recreating SHL for '${$shlStore.sessionId}'`,
+              shl_session: $shlStore.sessionId ?? "",
+              shl: $shlStore.id
+            }
+          }
+        });
         shlClient.deleteShl($shlStore);
         newShl(patient, mostRecentDocRef);
       } else {
         fetchError = "No report found.";
+        log({
+          action: "read",
+          severity: "error",
+          entity: {
+            detail: {
+              action: `No report found for '${$shlStore.sessionId}'`,
+              shl_session: $shlStore.sessionId ?? "",
+              shl: $shlStore.id,
+              patient: patient.id
+            }
+          }
+        })
       }
     }
 
@@ -169,13 +216,24 @@
 
     async function updateShl(details: SHLRetrieveEvent) {
       shlResult = details;
-        if (shlResult.shl) {
-          // Trigger update in store
-          $shlStore = shlResult.shl;
-        } else {
-          createSHL = true;
-        }
-        checkedShl = true;
+      if (shlResult.shl) {
+        log({
+          action: "read",
+          entity: {
+            detail: {
+              action: `Loaded SHL '${shlResult.shl.id}'`,
+              shl_session: sessionId,
+              shl: shlResult.shl.id,
+              patient: patientId
+            }
+          }
+        });
+        // Trigger update in store
+        $shlStore = shlResult.shl;
+      } else {
+        createSHL = true;
+      }
+      checkedShl = true;
     }
 
     function createIpsPayload(patient:any, docref:any) {
