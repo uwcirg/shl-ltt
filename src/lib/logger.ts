@@ -40,7 +40,7 @@ export class Logger {
   session_id: string;
   dest: string;
 
-  private constructor(user_id: string = "", session_id: string = "") {
+  private constructor(user_id: string = "unknown", session_id: string = "unknown") {
     this.dest = LOG_URL || "";
     this.user_id = user_id;
     this.session_id = session_id;
