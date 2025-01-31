@@ -2,7 +2,7 @@
 import { dev } from '$app/environment';
 import { toMilliseconds } from '$lib/util';
 
-export const VERSION_STRING = import.meta.env.VITE_VERSION_STRING;
+export const VERSION_STRING = import.meta.env.VITE_APP_VERSION_STRING;
 
 export const LOG_URL = import.meta.env.VITE_LOG_URL;
 export const SYSTEM_URL = import.meta.env.VITE_SYSTEM_URL;
