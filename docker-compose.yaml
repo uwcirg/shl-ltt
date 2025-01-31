@@ -2,6 +2,9 @@
 version: "3.4"
 services:
   shlips:
-    build: ./
+    build:
+      context: .
+      args:
+        VITE_APP_VERSION_STRING: ${VITE_APP_VERSION_STRING:-local}
     env_file:
       - .env
