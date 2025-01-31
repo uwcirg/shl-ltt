@@ -56,7 +56,7 @@ export class SHLClient {
     };
   }
 
-  async getUserShl(pid: string): Promise<SHLAdminParams>{
+  async getUserShl(pid: string): Promise<SHLAdminParams | undefined>{
     try {
       const req = await fetch(`${API_BASE}/user/${pid}`, {
         method: 'GET'

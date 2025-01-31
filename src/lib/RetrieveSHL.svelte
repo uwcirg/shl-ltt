@@ -4,6 +4,7 @@
     import type { SHLClient } from '$lib/managementClient';
     import type { SHLRetrieveEvent } from './types';
     import type { SOFClient } from '$lib/sofClient'
+    import { log } from '$lib/logger';
 
     let shlClient: SHLClient = getContext('shlClient');
     let sofClient: SOFClient = getContext('sofClient');
@@ -28,6 +29,17 @@
         } catch (error) {
           fetchError = "Unable to retrieve most recent sharing link.";
           console.error(`Error retrieving SHL for patient ${patientId}: ${error}`);
+          log({
+            severity: "error",
+            action: "read",
+            entity: {
+              detail: {
+                action: `Retrieve SHL for patient ${patientId}`,
+                message: fetchError
+              }
+            },
+            outcome: `${JSON.stringify(error)}`
+          })
         }
         // Meanwhile, in FetchSOF:
           // retrieve DocRefs for current patient (reports and shl metadata)
@@ -43,6 +55,6 @@
 {#if fetchError}
 <Alert color="danger">
   <h4 class="alert-heading text-capitalize">{fetchError}</h4>
-  You can try again later, click "Back" to choose another option, or reach out for help below.
+  You can reach out for help below, or click "Back" for more options.
 </Alert>
 {/if}
