@@ -68,18 +68,7 @@ export class Logger {
     return {...defaults, ...logMessage};
   }
 
-  public log(content: LogMessageSimple, dest?: string): void {
-    let logURL = dest ?? this.dest;
-    if (!logURL) {
-      console.log(JSON.stringify(content));
-      return;
-    }
-    if (!URL.canParse(logURL)) {
-      console.warn('Invalid log destination: ' + logURL);
-      console.log(JSON.stringify(content));
-      return;
-    }
-  
+  public log(content: LogMessageSimple, dest?: string): void {  
     let defaults: Partial<LogMessage> = {
       version: "2",
       severity: "info",
@@ -101,8 +90,18 @@ export class Logger {
       },
       outcome: "", // failure or warning details
     }
-  
     let logMessage: LogMessageSimple = this.applyLogFallbacks(content, defaults);
+
+    let logURL = dest ?? this.dest;
+    if (!logURL) {
+      console.log(JSON.stringify(content));
+      return;
+    }
+    if (!URL.canParse(logURL)) {
+      console.warn('Invalid log destination: ' + logURL);
+      console.log(JSON.stringify(content));
+      return;
+    }
   
     fetch(logURL, {
       method: "POST",
