@@ -4,7 +4,7 @@ type Action = 'create' | 'read' | 'update' | 'delete' | 'execute' | 'login' | 'l
 type Severity = 'critical' | 'error' | 'warning' | 'info' | 'debug';
 
 export interface LogMessage {
-  version: string; // default: 2
+  version: string; // default: 3.0
   severity: Severity; // default: info
   action: Action;
   occurred?: string; // datetime of event
@@ -70,7 +70,7 @@ export class Logger {
 
   public log(content: LogMessageSimple, dest?: string): void {  
     let defaults: Partial<LogMessage> = {
-      version: "2",
+      version: "3.0",
       severity: "info",
       occurred: new Date().toISOString(),
       subject: this.user_id,
